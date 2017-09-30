@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:orientation="vertical"
+android:gravity="center_horizontal"
+android:layout_height="match_parent"
+    tools:context="com.ecg.dippo.ecg_final.MainActivity">
+
+<ImageView
+    android:id="@+id/imageView"
+    android:layout_width="354dp"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    app:srcCompat="@drawable/udemm" />
+
+<TextView
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="ECG Monitor"
+    android:textSize="24sp"
+    android:textStyle="bold" />
+
+<Button
+    android:id="@+id/btn"
+    android:visibility="visible"
+    android:background="@drawable/buttonblue"
+    android:layout_width="330dp"
+    android:textColor="@android:color/white"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="40dp"
+    android:text="Comenzar" />
+
+<TextView
+    android:id="@+id/textView2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="150dp"
+    android:textStyle="bold"
+    android:text="UdeMM 2017" />
+
+<TextView
+    android:id="@+id/textView3"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Tomás Prieto - Sergio D’Ippolito" />
+
+</LinearLayout>
