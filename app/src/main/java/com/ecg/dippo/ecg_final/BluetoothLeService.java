@@ -142,6 +142,8 @@ public class BluetoothLeService extends Service {
         } else {
             // For all other profiles, writes the data formatted in HEX.
             final byte[] data = characteristic.getValue();
+            Log.e("crudo uuid",characteristic.getUuid().toString());
+            Log.e("crudo",characteristic.getValue().toString());
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for(byte byteChar : data)
