@@ -32,6 +32,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -141,9 +142,12 @@ public class BluetoothLeService extends Service {
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         } else {
             // For all other profiles, writes the data formatted in HEX.
+
             final byte[] data = characteristic.getValue();
-            Log.e("crudo uuid",characteristic.getUuid().toString());
-            Log.e("crudo",characteristic.getValue().toString());
+
+            System.out.printf("data cruda: %s\n", Arrays.toString(data));
+
+
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for(byte byteChar : data)
@@ -152,6 +156,16 @@ public class BluetoothLeService extends Service {
             }
         }
         sendBroadcast(intent);
+    }
+
+    private static String toHexadecimal(byte[] digest){
+        String hash = "";
+        for(byte aux : digest) {
+            int b = aux & 0xff;
+            if (Integer.toHexString(b).length() == 1) hash += "0";
+            hash += Integer.toHexString(b);
+        }
+        return hash;
     }
 
     public class LocalBinder extends Binder {

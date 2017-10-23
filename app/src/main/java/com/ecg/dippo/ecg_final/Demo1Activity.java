@@ -32,12 +32,13 @@ import java.util.UUID;
 import rx.Subscription;
 
 public class Demo1Activity extends AppCompatActivity {
-    String macAddress = "C8:FD:19:4D:F8:41";
-    String macAddressPulsi = "34:B1:F7:CD:4B:2E";
+    //String macAddress = "6A:D9:EF:AD:83:28";
+    String macAddress = "42:AC:0B:83:EB:B0";
 
 
-    public static String UUID_MYSERVICE = "00001800-0000-1000-8000-00805f9b34fb";
-    public static String UUID_MYCHART= "00002a24-0000-1000-8000-00805f9b34fb";
+
+    public static String UUID_MYSERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
+    public static String UUID_MYCHART= "00002a19-0000-1000-8000-00805f9b34fb";
 
     Button btnConectar;
     private BluetoothAdapter mBluetoothAdapter;
@@ -110,7 +111,7 @@ public class Demo1Activity extends AppCompatActivity {
 
                     // inicio conexion.
                     //mBluetoothLeService.connect(macAddress);
-                    mBluetoothLeService.connect(macAddressPulsi);
+                    mBluetoothLeService.connect(macAddress);
 
                 }
             });
@@ -127,81 +128,21 @@ public class Demo1Activity extends AppCompatActivity {
         // recorro todos los servicios
         for (BluetoothGattService gattService : gattServices) {
             String serviceUUID = gattService.getUuid().toString();
-          //  Log.e("onServicesDiscovered", "Service uuid "+serviceUUID);
+            Log.e("onServicesDiscovered", "Service uuid "+serviceUUID);
 
 
             List<BluetoothGattCharacteristic> gattCharacteristics =
                     gattService.getCharacteristics();
-                // recorros todas las charasteristics
+
+            if (serviceUUID.equalsIgnoreCase(UUID_MYSERVICE)){
                 for (BluetoothGattCharacteristic caracts: gattCharacteristics) {
-                    String uuid = caracts.getUuid().toString();
-
-                    if (caracts.getProperties()==BluetoothGattCharacteristic.PROPERTY_READ)
-                    {
-                        // SOLO LAS DE LECTURA
-                        Log.e("caracts de lectura: ","Caracteristicas:" +uuid);
-
-                        if (uuid.equalsIgnoreCase(this.UUID_MYCHART)){
-                            Log.e("entro caracast","entroo");
-                            //mBluetoothLeService.readCharacteristic(caracts);
-                        }
+                        String uuid = caracts.getUuid().toString();
+                            Log.e("my uuidddd", String.valueOf(caracts.getProperties()));
+                            Log.e("caracts ", caracts.getUuid().toString());
+                            mBluetoothLeService.setCharacteristicNotification(caracts,true);
                     }
-
-                    if (caracts.getProperties()==BluetoothGattCharacteristic.PROPERTY_NOTIFY)
-                    {
-                        // SOLO LAS DE LECTURA
-                        Log.e("caracts de notifi: ","Caracteristicas:" +uuid);
-                    }
-
-
-                    if (caracts.getProperties()==BluetoothGattCharacteristic.PROPERTY_BROADCAST)
-                    {
-                        // SOLO LAS DE LECTURA
-                        Log.e("caracts de broad: ","Caracteristicas:" +uuid);
-                    }
-
-                    if (caracts.getProperties()==BluetoothGattCharacteristic.PROPERTY_INDICATE)
-                    {
-                        // SOLO LAS DE LECTURA
-                        Log.e("caracts de indicate: ","Caracteristicas:" +uuid);
-                        mBluetoothLeService.readCharacteristic(caracts);
-                    }
-
-
-                }
+            }
         }
-
-        //10-21 16:17:53.165 9220-9220/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 0000ff70-0000-1000-8000-00805f9b34fb
-        //10-21 16:17:53.165 9220-9220/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 00001800-0000-1000-8000-00805f9b34fb
-        //10-21 16:17:53.166 9220-9220/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 00001801-0000-1000-8000-00805f9b34fb
-        //10-21 16:17:53.167 9220-9220/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 0000180a-0000-1000-8000-00805f9b34fb
-
-
-        //10-21 20:21:39.137 899-899/com.ecg.dippo.ecg_final E/onServicesDiscovered: Services count: 4
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 0000ff70-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:0000ff71-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 00001800-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a00-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a01-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a02-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a03-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a04-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.138 899-899/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 00001801-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a05-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/onServicesDiscovered: Service uuid 0000180a-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a23-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a24-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a25-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a26-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a27-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a28-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a29-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a2a-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a50-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a30-0000-1000-8000-00805f9b34fb
-        //10-21 20:21:39.139 899-899/com.ecg.dippo.ecg_final E/caracts:: Caracteristicas:00002a31-0000-1000-8000-00805f9b34fb
-
-
 
     }
 
