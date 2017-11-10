@@ -296,7 +296,7 @@ public class Demo1Activity extends AppCompatActivity {
                 mHandlerGraph.postDelayed(this, 200);
             }
         };
-       // mHandlerGraph.postDelayed(mTimer2, 1000);
+        mHandlerGraph.postDelayed(mTimer2, 1000);
     }
 
     private void updateConnectionState(final int resourceId) {

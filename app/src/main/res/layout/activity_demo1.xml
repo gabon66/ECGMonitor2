@@ -135,7 +135,7 @@
         </LinearLayout>
 
         <com.jjoe64.graphview.GraphView
-            android:visibility="invisible"
+            android:visibility="visible"
             android:id="@+id/graph"
             android:layout_marginTop="5dp"
             android:layout_width="match_parent"
