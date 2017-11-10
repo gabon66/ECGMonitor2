@@ -32,6 +32,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +45,9 @@ import java.util.UUID;
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
+    private String ecg_package;
+    private  Boolean ecg_package_ready=false;
+    private  int ecg_package_count=0;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
@@ -63,6 +68,10 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String EXTRA_DATA_ECG =
+            "com.example.bluetooth.le.EXTRA_DATA_ECG";
+    public final static String EXTRA_DATA_ECG_ERROR =
+            "com.example.bluetooth.le.EXTRA_DATA_ECG_ERROR";
 
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
@@ -128,18 +137,94 @@ public class BluetoothLeService extends Service {
 
             final byte[] data = characteristic.getValue();
 
-            System.out.printf("data cruda: %s\n", Arrays.toString(data));
+            //System.out.printf("data cruda: %s\n", Arrays.toString(data));
 
 
-            if (data != null && data.length > 0) {
+
+
+        // error LOD : 7 LR
+        // error LOD : 1 AR
+        // error LOD : 2 AL
+        // error LOD : 4 LL
+        // error LOD : 6 LL - AL
+        // error LOD : 5 LL - AR
+        // error LOD : 3 AL - AR
+
+
+
+        if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
+                for(byte byteChar : data){
                     stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            }
+                    //Log.e("valor sttr",String.format("%02X ", byteChar));
+                }
+
+
+                //intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+
+
+               // Log.i("data exa",stringBuilder.toString());
+
+                String[] dataECG = stringBuilder.toString().split(" ");
+
+
+                if (ecg_package_ready){
+                    ecg_package_count++;
+                    ecg_package=ecg_package+ dataECG[0];
+
+                    if(ecg_package_count==3){
+                        try {
+                            //Log.e("PAQUTE ECG",ecg_package);
+                            int paqueteiNt = Integer.parseInt(ecg_package.trim(), 16 );
+                            Log.e("PAQUTE ECG ",ecg_package +","+String.valueOf(paqueteiNt));
+                            intent.putExtra(EXTRA_DATA_ECG, paqueteiNt);
+
+                            ecg_package="";
+                            ecg_package_count=0;
+                            ecg_package_ready=false;
+                        }catch (Exception e){
+
+                            Log.e("error en armado",e.toString());
+                        }
+
+                    }
+                }
+
+                if(dataECG[0].equalsIgnoreCase("FF")){
+                    //Log.e("nuevo paquet","Paquete valido");
+                    if(dataECG.length>0){
+                        if(dataECG[1]!=null){
+                            ecg_package_count++;
+                            ecg_package=dataECG[1];
+                        }
+                    }
+                    ecg_package_ready=true;
+                }
+
+
+                try {
+                    String[] dataTest = stringBuilder.toString().split(" ");
+                    if (dataTest[0].equalsIgnoreCase("FE")){
+                        Log.e("nuevo paquet","Error de LOF");
+                        Log.e("el error es ",dataTest[1]);
+                        intent.putExtra(EXTRA_DATA_ECG_ERROR,dataTest[1]);
+                    }
+
+                }catch (Exception e){
+                    Log.e("Error split ",e.toString());
+                }
+
+        }
 
         sendBroadcast(intent);
     }
+
+    public static int byteArrayToLeInt(byte[] b) {
+        final ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        return bb.getInt();
+    }
+
 
     private static String toHexadecimal(byte[] digest){
         String hash = "";
@@ -150,6 +235,25 @@ public class BluetoothLeService extends Service {
         }
         return hash;
     }
+
+    public static byte[] intToByteArray(int a)
+    {
+        byte[] ret = new byte[4];
+        ret[3] = (byte) (a & 0xFF);
+        ret[2] = (byte) ((a >> 8) & 0xFF);
+        ret[1] = (byte) ((a >> 16) & 0xFF);
+        ret[0] = (byte) ((a >> 24) & 0xFF);
+        return ret;
+    }
+
+    public static int byteArrayToInt(byte[] b)
+    {
+        return   b[3] & 0xFF |
+                (b[2] & 0xFF) << 8 |
+                (b[1] & 0xFF) << 16 |
+                (b[0] & 0xFF) << 24;
+    }
+
 
     public class LocalBinder extends Binder {
         BluetoothLeService getService() {

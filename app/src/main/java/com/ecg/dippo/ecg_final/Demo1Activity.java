@@ -51,7 +51,10 @@ import rx.Subscription;
 
 public class Demo1Activity extends AppCompatActivity {
     //String macAddress = "6A:D9:EF:AD:83:28";
-    String macAddress = "42:AC:0B:83:EB:B0";
+
+    String macAddress = "C8:FD:19:4D:F8:41";
+
+    //String macAddress = "42:AC:0B:83:EB:B0";
 
     String macPusli="34B1F7CD4B2E";
 
@@ -82,8 +85,10 @@ public class Demo1Activity extends AppCompatActivity {
     EditText txtMac;
     Boolean scanResult=false;
 
-    public static String UUID_MYSERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
-    public static String UUID_MYCHART= "00002a19-0000-1000-8000-00805f9b34fb";
+    //public static String UUID_MYSERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
+    public static String UUID_MYSERVICE = "0000ffe0-0000-1000-8000-00805f9b34fb";
+
+    public static String UUID_MYCHART= "0000FFE1-0000-1000-8000-00805FPB34FB";
 
     Button btnConectar ,btnOxi;
     private BluetoothAdapter mBluetoothAdapter;
@@ -261,7 +266,7 @@ public class Demo1Activity extends AppCompatActivity {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
 
 
-                Log.e("data BT",intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                //Log.e("data  Bluetooth",intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
 
                 //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
@@ -475,6 +480,7 @@ public class Demo1Activity extends AppCompatActivity {
 
                         Log.i(TAG, "dataId:"+dataId+"--oxygen:" + oxygen + "--pulseRate:" + pulseRate + "--Pi:" + PI + "-wave1:" + wave[0]
                                 + "-wave2:" + wave[1] + "--wave3:" + wave[2]);
+
 
                         graph2LastXValue += 1d;
                         mSeries2.appendData(new DataPoint(graph2LastXValue, wave[0]), true, 5000);
