@@ -9,6 +9,8 @@
     tools:context="com.ecg.dippo.ecg_final.chartEcg"
     android:weightSum="1">
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_marginTop="30dp"
@@ -16,5 +18,23 @@
         android:id="@+id/chartecg2"
         android:orientation="horizontal"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp"></LinearLayout>
+        tools:layout_editor_absoluteY="8dp">
+
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/btnAR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Error" />
+
+
+    <pl.droidsonroids.gif.GifImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/human"
+        />
+
 </LinearLayout>

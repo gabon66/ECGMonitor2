@@ -1,7 +1,13 @@
 package com.ecg.dippo.ecg_final;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.ecg.dippo.ecg_final.data.DataManager;
@@ -47,6 +53,8 @@ public class chartEcg extends AppCompatActivity {
 
     private volatile boolean isRunning = true;
 
+    Button btnError1,btnError2,btnError3,btnError4;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +64,17 @@ public class chartEcg extends AppCompatActivity {
 
 
         final SciChartSurface surface = new SciChartSurface(this);
-        LinearLayout chartLayout = (LinearLayout) findViewById(R.id.chartecg2);
+        final LinearLayout chartLayout = (LinearLayout) findViewById(R.id.chartecg2);
 
+        btnError1=(Button)findViewById(R.id.btnAR);
+
+
+        btnError1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openModalError(chartEcg.this,1);
+            }
+        });
 
         SciChartBuilder.init(this);
 
@@ -158,4 +175,26 @@ public class chartEcg extends AppCompatActivity {
         TraceA,
         TraceB
     }
+
+
+    private  void openModalError(Context cont,int image){
+        Dialog dialog = new Dialog(cont);
+
+        dialog.setContentView(R.layout.modal_error);
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(final DialogInterface arg0) {
+                // do something
+
+            }
+        });
+
+        try {
+            dialog.show();
+        }catch (Exception e){
+            Log.e("error",e.toString());
+        }
+    }
+
 }

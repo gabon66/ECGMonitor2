@@ -51,4 +51,5 @@ dependencies {
     compile 'com.github.douglasjunior.AndroidBluetoothLibrary:BluetoothLowEnergyLibrary:0.3.4'
     compile 'com.polidea.rxandroidble:rxandroidble:1.4.1'
     testCompile 'junit:junit:4.12'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.+'
 }
