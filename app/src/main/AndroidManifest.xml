@@ -7,9 +7,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Permission for writing on device memory -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -36,7 +34,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".DemoActivity" />
-        <activity android:name=".Demo1Activity"></activity>
-        <service android:name=".BluetoothLeService" android:enabled="true"/>
+        <activity android:name=".Demo1Activity" />
+
+        <service
+            android:name=".BluetoothLeService"
+            android:enabled="true" />
+
+        <activity android:name=".chartEcg"></activity>
     </application>
+
 </manifest>

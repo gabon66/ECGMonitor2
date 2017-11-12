@@ -26,6 +26,25 @@
             android:text="Comenzar Lectura ECG"
             tools:layout_editor_absoluteX="148dp"
             tools:layout_editor_absoluteY="167dp" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:id="@+id/chartecg"
+                android:layout_height="match_parent"
+
+                android:orientation="horizontal"></LinearLayout>
+
+        </LinearLayout>
+
+
     </LinearLayout>
 
 
@@ -135,7 +154,7 @@
         </LinearLayout>
 
         <com.jjoe64.graphview.GraphView
-            android:visibility="visible"
+            android:visibility="invisible"
             android:id="@+id/graph"
             android:layout_marginTop="5dp"
             android:layout_width="match_parent"
