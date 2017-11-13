@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/backblue"
+    android:background="#1C181E"
     android:orientation="vertical"
     tools:context="com.ecg.dippo.ecg_final.chartEcg"
     android:weightSum="1">
@@ -28,13 +28,32 @@
         android:id="@+id/btnAR"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Error" />
+        android:text="Error cuERPO" />
 
-
-    <pl.droidsonroids.gif.GifImageView
+    <Button
+        android:id="@+id/btnAR1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/human"
-        />
+        android:layout_height="wrap_content"
+        android:text="Error BRAZO DER " />
+
+    <Button
+        android:id="@+id/btnAR2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Error BRAZO IZQ" />
+
+
+    <Button
+        android:id="@+id/btnAR4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Error PIERN IZQ" />
+
+    <Button
+        android:id="@+id/btnAR3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Error PIERN DER" />
+
 
 </LinearLayout>

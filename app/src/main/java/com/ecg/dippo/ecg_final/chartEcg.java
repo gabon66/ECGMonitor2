@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.ecg.dippo.ecg_final.data.DataManager;
@@ -53,7 +54,7 @@ public class chartEcg extends AppCompatActivity {
 
     private volatile boolean isRunning = true;
 
-    Button btnError1,btnError2,btnError3,btnError4;
+    Button btnError1,btnError2,btnError3,btnError4,btnError5;
 
 
     @Override
@@ -68,6 +69,14 @@ public class chartEcg extends AppCompatActivity {
 
         btnError1=(Button)findViewById(R.id.btnAR);
 
+        btnError2=(Button)findViewById(R.id.btnAR1);
+        btnError3=(Button)findViewById(R.id.btnAR2);
+        btnError4=(Button)findViewById(R.id.btnAR3);
+        btnError5=(Button)findViewById(R.id.btnAR4);;
+
+
+
+
 
         btnError1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,6 +84,42 @@ public class chartEcg extends AppCompatActivity {
                 openModalError(chartEcg.this,1);
             }
         });
+
+
+        btnError2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openModalError(chartEcg.this,3);
+            }
+        });
+
+
+        btnError3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openModalError(chartEcg.this,2);
+            }
+        });
+
+
+        btnError4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openModalError(chartEcg.this,4);
+            }
+        });
+
+
+        btnError5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openModalError(chartEcg.this,5);
+            }
+        });
+
+
+
+
 
         SciChartBuilder.init(this);
 
@@ -181,6 +226,40 @@ public class chartEcg extends AppCompatActivity {
         Dialog dialog = new Dialog(cont);
 
         dialog.setContentView(R.layout.modal_error);
+
+        ImageView cuerpo=(ImageView)dialog.findViewById(R.id.cuerpo);
+        ImageView cuerpo_bra_der=(ImageView)dialog.findViewById(R.id.cuerpo_bra_der);
+        ImageView cuerpo_bra_izq=(ImageView)dialog.findViewById(R.id.cuerpo_bra_izq);
+        ImageView cuerpo_pier_der=(ImageView)dialog.findViewById(R.id.cuerpo_pier_der);
+        ImageView cuerpo_pier_izq=(ImageView)dialog.findViewById(R.id.cuerpo_pier_izq);
+
+
+
+        Log.e("imagen",String.valueOf(image));
+        if(image==1){
+            cuerpo.setVisibility(View.VISIBLE);
+        }
+
+        if(image==2){
+            cuerpo_bra_der.setVisibility(View.VISIBLE);
+        }
+
+
+        if(image==3){
+            cuerpo_bra_izq.setVisibility(View.VISIBLE);
+        }
+
+
+        if(image==4){
+            cuerpo_pier_der.setVisibility(View.VISIBLE);
+        }
+
+
+        if(image==5){
+            cuerpo_pier_izq.setVisibility(View.VISIBLE);
+        }
+
+
 
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
