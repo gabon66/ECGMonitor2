@@ -1,5 +1,7 @@
 package com.ecg.dippo.ecg_final;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -7,6 +9,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,12 +77,16 @@ public class Demo1Activity extends AppCompatActivity {
     //String macAddress = "6A:D9:EF:AD:83:28";
 
     String macAddress = "C8:FD:19:4D:F8:41";
+    ProgressDialog dialog;
+
 
     //String macAddress = "42:AC:0B:83:EB:B0";
 
     String macPusli="34B1F7CD4B2E";
+    Boolean firstLoadEcg=false;
 
-
+    Dialog dialogerror;
+    SciChartSurface surface ;
     IXyDataSeries<Double, Double> series0 ;
     IXyDataSeries<Double, Double> series1 ;
     private final static long TIME_INTERVAL = 20;
@@ -144,7 +152,7 @@ public class Demo1Activity extends AppCompatActivity {
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
     private BluetoothLeService mBluetoothLeService;
-
+    LinearLayout chartLayout;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
@@ -191,14 +199,100 @@ public class Demo1Activity extends AppCompatActivity {
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
 
-        final SciChartSurface surface = new SciChartSurface(this);
-        LinearLayout chartLayout = (LinearLayout) findViewById(R.id.chartecg);
-        chartLayout.addView(surface);
+        surface = new SciChartSurface(this);
+        chartLayout = (LinearLayout) findViewById(R.id.chartecg);
+
+
+
+
+
+
+
+        lblpR=(TextView)findViewById(R.id.txtPR);
+        lblSPO2=(TextView)findViewById(R.id.txtSPO2);
+        dataPR=(LinearLayout)findViewById(R.id.dataPr);
+        dataSO02=(LinearLayout)findViewById(R.id.dataSPO2);
+
+
+        graph = (GraphView) findViewById(R.id.graph);
+        mSeries2 = new LineGraphSeries<>();
+        graph.addSeries(mSeries2);
+
+
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(40);
+        graph.getLegendRenderer().setVisible(false);
+
+        graph.addSeries(mSeries2);
+
+        if (mBluetoothAdapter!=null){
+            Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+            bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+
+            btnConectar=(Button)findViewById(R.id.button);
+
+            btnOxi=(Button)findViewById(R.id.btnOxi);
+
+
+            //loadEcgChart();
+            btnOxi.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    //dialog = ProgressDialog.show(Demo1Activity.this, "Espere por favor",
+                     //       "Buscando PulsiOximetro", true);
+
+                    scanPulsi();
+
+
+
+                }
+            });
+
+            btnConectar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // inicio conexion.
+                    mBluetoothLeService.connect(macAddress);
+                    //schedule.cancel(true);
+                    //openModalError(Demo1Activity.this,2);
+                }
+            });
+
+        }
+
+
+
+        iHealthDevicesManager.getInstance().init(Demo1Activity.this);
+        callbackId = iHealthDevicesManager.getInstance().registerClientCallback(miHealthDevicesCallback);
+        iHealthDevicesManager.getInstance().sdkUserInAuthor(Demo1Activity.this, "gabriel.adrian.felipe@gmail.com", "da1266ba3e6d479482203c03db61d6cf", "907210256bb54741b66e05c98b61be8f", callbackId);
+
+        iHealthDevicesManager.getInstance().addCallbackFilterForDeviceType(callbackId,
+                iHealthDevicesManager.TYPE_PO3);
+
+    }
+
+
+    private void reloadEcgChart(){
+        schedule=scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                UpdateSuspender.using(surface, appendDataRunnable);
+            }
+        }, 0, TIME_INTERVAL, TimeUnit.MILLISECONDS);
+    }
+
+
+    private void loadEcgChart()
+    {
 
         SciChartBuilder.init(this);
-
-
+        firstLoadEcg=true;
         // Obtain the SciChartBuilder instance
+        chartLayout.setVisibility(View.VISIBLE);
         final SciChartBuilder sciChartBuilder = SciChartBuilder.instance();
 
         sourceData = DataManager.getInstance().loadWaveformData(getApplicationContext());
@@ -209,10 +303,9 @@ public class Demo1Activity extends AppCompatActivity {
         series1 = sciChartBuilder.newXyDataSeries(Double.class, Double.class).withFifoCapacity(3850).build();
 
         final IAxis xBottomAxis = sciChartBuilder.newNumericAxis()
-                //.withVisibleRange(new DoubleRange(0d, 10d))
-                .withVisibility(1)
+                .withVisibleRange(new DoubleRange(0d, 10d))
                 .withAutoRangeMode(AutoRange.Never)
-                //.withAxisTitle("Time (seconds)")
+                .withAxisTitle("Tiempo (segundos)")
                 .build();
 
         final IAxis yRightAxis = sciChartBuilder.newNumericAxis()
@@ -249,68 +342,8 @@ public class Demo1Activity extends AppCompatActivity {
             }
         }, 0, TIME_INTERVAL, TimeUnit.MILLISECONDS);
 
-
-
-
-
-
-
-
-        lblpR=(TextView)findViewById(R.id.txtPR);
-        lblSPO2=(TextView)findViewById(R.id.txtSPO2);
-        dataPR=(LinearLayout)findViewById(R.id.dataPr);
-        dataSO02=(LinearLayout)findViewById(R.id.dataSPO2);
-
-
-        graph = (GraphView) findViewById(R.id.graph);
-        mSeries2 = new LineGraphSeries<>();
-        graph.addSeries(mSeries2);
-
-
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(40);
-        graph.getLegendRenderer().setVisible(false);
-
-        graph.addSeries(mSeries2);
-
-        if (mBluetoothAdapter!=null){
-            Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-            bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
-
-            btnConectar=(Button)findViewById(R.id.button);
-
-            btnOxi=(Button)findViewById(R.id.btnOxi);
-
-            btnOxi.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    scanPulsi();
-                }
-            });
-
-            btnConectar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // inicio conexion.
-                    //mBluetoothLeService.connect(macAddress);
-                    mBluetoothLeService.connect(macAddress);
-                }
-            });
-        }
-
-
-
-        iHealthDevicesManager.getInstance().init(Demo1Activity.this);
-        callbackId = iHealthDevicesManager.getInstance().registerClientCallback(miHealthDevicesCallback);
-        iHealthDevicesManager.getInstance().sdkUserInAuthor(Demo1Activity.this, "gabriel.adrian.felipe@gmail.com", "da1266ba3e6d479482203c03db61d6cf", "907210256bb54741b66e05c98b61be8f", callbackId);
-
-        iHealthDevicesManager.getInstance().addCallbackFilterForDeviceType(callbackId,
-                iHealthDevicesManager.TYPE_PO3);
-
+        chartLayout.addView(surface);
     }
-
 
 
 
@@ -368,10 +401,47 @@ public class Demo1Activity extends AppCompatActivity {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
 
 
+
                 //Log.e("data  Bluetooth",intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
 
                 //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
+            else if (BluetoothLeService.EXTRA_DATA_ECG.equals(action)) {
+
+
+                //Log.e("data  Bluetooth",intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                if(dialogerror!=null){
+                    dialogerror.dismiss();
+                }
+                if(firstLoadEcg){
+                    reloadEcgChart();
+                }else {
+                    loadEcgChart();
+                }
+
+                //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }
+            else if (BluetoothLeService.EXTRA_DATA_ECG_ERROR.equals(action)) {
+
+
+                // error LOD : 7 LR
+                // error LOD : 1 AR
+                // error LOD : 2 AL
+                // error LOD : 4 LL
+                // error LOD : 6 LL - AL
+                // error LOD : 5 LL - AR
+                // error LOD : 3 AL - AR
+                String error =intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+
+                // cancelo ECG graph
+                schedule.cancel(true);
+                openModalError(Demo1Activity.this,1);
+                // muestro modal
+
+            }
+
+
+
         }
 
 
@@ -614,6 +684,8 @@ public class Demo1Activity extends AppCompatActivity {
 
         @Override
         public void onScanFinish() {
+
+            //dialog.dismiss();
             if(!scanResult){
 
                 //Toast.makeText(Demo1Activity.this, "Error : PulsiOximetro no encontrado", Toast.LENGTH_SHORT).show();
@@ -773,5 +845,59 @@ public class Demo1Activity extends AppCompatActivity {
         TraceB
     }
 
+
+    private  void openModalError(Context cont,int image){
+        dialogerror = new Dialog(cont);
+
+        dialogerror.setContentView(R.layout.modal_error);
+
+        ImageView cuerpo=(ImageView)dialogerror.findViewById(R.id.cuerpo);
+        ImageView cuerpo_bra_der=(ImageView)dialogerror.findViewById(R.id.cuerpo_bra_der);
+        ImageView cuerpo_bra_izq=(ImageView)dialogerror.findViewById(R.id.cuerpo_bra_izq);
+        ImageView cuerpo_pier_der=(ImageView)dialogerror.findViewById(R.id.cuerpo_pier_der);
+        ImageView cuerpo_pier_izq=(ImageView)dialogerror.findViewById(R.id.cuerpo_pier_izq);
+
+
+
+        Log.e("imagen",String.valueOf(image));
+        if(image==1){
+            cuerpo.setVisibility(View.VISIBLE);
+        }
+
+        if(image==2){
+            cuerpo_bra_der.setVisibility(View.VISIBLE);
+        }
+
+
+        if(image==3){
+            cuerpo_bra_izq.setVisibility(View.VISIBLE);
+        }
+
+
+        if(image==4){
+            cuerpo_pier_der.setVisibility(View.VISIBLE);
+        }
+
+
+        if(image==5){
+            cuerpo_pier_izq.setVisibility(View.VISIBLE);
+        }
+
+
+
+        dialogerror.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(final DialogInterface arg0) {
+                // do something
+                reloadEcgChart();
+            }
+        });
+
+        try {
+            dialogerror.show();
+        }catch (Exception e){
+            Log.e("error",e.toString());
+        }
+    }
 
 }

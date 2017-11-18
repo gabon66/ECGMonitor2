@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="vertical"
+
+    android:background="#1C181E"
     android:layout_height="match_parent"
     tools:context="com.ecg.dippo.ecg_final.Demo1Activity">
 
@@ -13,88 +15,79 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.5"
+        android:layout_marginLeft="10px"
+        android:layout_marginRight="10px"
         android:gravity="center_horizontal"
-        android:background="@drawable/backblue_inverse"
+        android:background="#1C181E"
         android:orientation="vertical">
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_height="40dp"
-            android:background="@drawable/buttongrey"
-            android:text="Comenzar Lectura ECG"
-            tools:layout_editor_absoluteX="148dp"
-            tools:layout_editor_absoluteY="167dp" />
 
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
 
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:id="@+id/chartecg"
-                android:layout_height="match_parent"
+            <Button
+                android:id="@+id/btnOxi"
+                android:layout_width="0px"
+                android:layout_weight="0.5"
 
-                android:orientation="horizontal"></LinearLayout>
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/buttongrey"
+                android:text="Pulsi-Oximetro" />
+
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="0px"
+                android:layout_weight="0.5"
+
+                android:layout_height="40dp"
+                android:layout_marginLeft="10px"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/buttongrey"
+                android:text="ECG"
+                tools:layout_editor_absoluteX="148dp"
+                tools:layout_editor_absoluteY="167dp" />
 
         </LinearLayout>
 
 
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:gravity="center_horizontal"
-        android:background="@drawable/backblue"
-        android:layout_weight="0.5"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/btnOxi"
-            android:layout_marginTop="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/buttongrey"
-            android:text="Comenzar Lectura Pulsi-Oximetro" />
-
 
         <LinearLayout
+            android:id="@+id/dataSPO2"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:id="@+id/dataSPO2"
-            android:visibility="invisible"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="invisible">
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="0.3"
                 android:layout_height="50dp"
-                android:gravity="center"
+                android:layout_weight="0.7"
+                android:gravity="left|center_vertical"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView43"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SpO2"
-                    android:textColor="@android:color/white"
+
+                    android:text="Oxígeno en Sangre (SpO2):"
+                    android:textColor="#2a78a3"
                     android:textSize="15dp" />
-                </LinearLayout>
+            </LinearLayout>
 
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="0.7"
-                android:gravity="center"
                 android:layout_height="50dp"
+                android:layout_weight="0.3"
+                android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
@@ -102,42 +95,47 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="96%"
-                    android:textColor="@android:color/white"
+                    android:textColor="#2a78a3"
                     android:textSize="30dp" />
             </LinearLayout>
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
 
         <LinearLayout
+            android:id="@+id/dataPr"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:visibility="invisible"
-            android:id="@+id/dataPr"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="invisible">
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="0.3"
                 android:layout_height="50dp"
-                android:gravity="center"
+                android:layout_weight="0.7"
+                android:gravity="left|center"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView"
+
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PR"
-                    android:textColor="@android:color/white"
+                    android:text="Pulsaciones:"
+                    android:textColor="#2a78a3"
                     android:textSize="15dp" />
             </LinearLayout>
 
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_weight="0.7"
-                android:gravity="center"
                 android:layout_height="50dp"
+                android:layout_weight="0.3"
+                android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
@@ -145,19 +143,45 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="74 bpm"
-                    android:textColor="@android:color/white"
+                    android:textColor="#2a78a3"
                     android:textSize="30dp" />
             </LinearLayout>
-
-
-
         </LinearLayout>
 
-        <com.jjoe64.graphview.GraphView
-            android:visibility="invisible"
-            android:id="@+id/graph"
-            android:layout_marginTop="5dp"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="70dip" />
-</LinearLayout>
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginLeft="10px"
+        android:layout_marginRight="10px"
+        android:layout_weight="0.5"
+        android:background="#1C181E"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:id="@+id/chartecg"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:orientation="horizontal">
+        </LinearLayout>
+
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graph"
+            android:layout_width="match_parent"
+            android:layout_height="70dip"
+            android:layout_marginTop="5dp"
+            android:visibility="invisible" />
+    </LinearLayout>
 </LinearLayout>

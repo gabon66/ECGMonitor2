@@ -37,6 +37,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.StreamHandler;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -131,7 +132,7 @@ public class BluetoothLeService extends Service {
 
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
-        final Intent intent = new Intent(action);
+        final Intent intent;
 
             // ACA LLEGA LA DATA , HAGO UN PRIMERO PROCESOS PARA LEER QUE LLEGA Y LA MANDO AL INTENT QUE LA NECESITA
 
@@ -177,7 +178,7 @@ public class BluetoothLeService extends Service {
                             //Log.e("PAQUTE ECG",ecg_package);
                             int paqueteiNt = Integer.parseInt(ecg_package.trim(), 16 );
                             Log.e("PAQUTE ECG ",ecg_package +","+String.valueOf(paqueteiNt));
-                            intent.putExtra(EXTRA_DATA_ECG, paqueteiNt);
+
 
                             ecg_package="";
                             ecg_package_count=0;
@@ -207,7 +208,16 @@ public class BluetoothLeService extends Service {
                     if (dataTest[0].equalsIgnoreCase("FE")){
                         Log.e("nuevo paquet","Error de LOF");
                         Log.e("el error es ",dataTest[1]);
-                        intent.putExtra(EXTRA_DATA_ECG_ERROR,dataTest[1]);
+
+                        // si detecto un error mando el error y el codigo
+                        intent=new Intent(EXTRA_DATA_ECG_ERROR);
+                        intent.putExtra(EXTRA_DATA, dataTest[1]);
+                        sendBroadcast(intent);
+                    }else {
+                        // si no viene error es que esta todo ok
+                        intent=new Intent(EXTRA_DATA_ECG);
+                        intent.putExtra(EXTRA_DATA, "ok");
+                        sendBroadcast(intent);
                     }
 
                 }catch (Exception e){
@@ -216,7 +226,7 @@ public class BluetoothLeService extends Service {
 
         }
 
-        sendBroadcast(intent);
+
     }
 
     public static int byteArrayToLeInt(byte[] b) {

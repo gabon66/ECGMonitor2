@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         btnDemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent demo = new Intent(getApplicationContext() , chartEcg.class);
+                Intent demo = new Intent(getApplicationContext() , Demo1Activity.class);
                 startActivity(demo);
             }
         });
