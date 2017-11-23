@@ -81,9 +81,20 @@ public class Demo1Activity extends AppCompatActivity {
 
 
     //String macAddress = "42:AC:0B:83:EB:B0";
-
+    Boolean haveError=false;
+    Boolean haveDataOk=false;
+    Boolean modalOn=false;
     String macPusli="34B1F7CD4B2E";
     Boolean firstLoadEcg=false;
+    String errorDetected="";
+
+
+
+    ImageView cuerpo;
+    ImageView cuerpo_bra_der;
+    ImageView cuerpo_bra_izq;
+    ImageView cuerpo_pier_der;
+    ImageView cuerpo_pier_izq;
 
     Dialog dialogerror;
     SciChartSurface surface ;
@@ -126,6 +137,9 @@ public class Demo1Activity extends AppCompatActivity {
     private Po3Control mPo3Control;
     Button btnreload;
     Button btnStart;
+
+    Boolean conexionPulsi=false;
+    Boolean conexionECG=false;
 
     EditText txtMac;
     Boolean scanResult=false;
@@ -245,9 +259,15 @@ public class Demo1Activity extends AppCompatActivity {
                     //dialog = ProgressDialog.show(Demo1Activity.this, "Espere por favor",
                      //       "Buscando PulsiOximetro", true);
 
-                    scanPulsi();
-
-
+                    if(conexionPulsi==false){
+                        btnOxi.setText("Buscando..");
+                        btnOxi.setEnabled(false);
+                        scanPulsi();
+                    }else {
+                        if (mPo3Control!=null){
+                            mPo3Control.disconnect();
+                        }
+                    }
 
                 }
             });
@@ -256,7 +276,21 @@ public class Demo1Activity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     // inicio conexion.
-                    mBluetoothLeService.connect(macAddress);
+
+                    try {
+                        if (mPo3Control!=null){
+                            mPo3Control.disconnect();
+                        }
+                    }catch (Exception e){
+                        Log.e("po3 close",e.toString());
+                    }
+
+                    if(conexionECG==false){
+                        mBluetoothLeService.connect(macAddress);
+                    }else {
+                        mBluetoothLeService.disconnect();
+                    }
+
                     //schedule.cancel(true);
                     //openModalError(Demo1Activity.this,2);
                 }
@@ -282,7 +316,7 @@ public class Demo1Activity extends AppCompatActivity {
             public void run() {
                 UpdateSuspender.using(surface, appendDataRunnable);
             }
-        }, 0, TIME_INTERVAL, TimeUnit.MILLISECONDS);
+        }, 2000, TIME_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
 
@@ -306,10 +340,11 @@ public class Demo1Activity extends AppCompatActivity {
                 .withVisibleRange(new DoubleRange(0d, 10d))
                 .withAutoRangeMode(AutoRange.Never)
                 .withAxisTitle("Tiempo (segundos)")
+                .withVisibility(1)
                 .build();
 
         final IAxis yRightAxis = sciChartBuilder.newNumericAxis()
-                .withVisibleRange(new DoubleRange(-0.5d, 1.5d))
+                .withVisibleRange(new DoubleRange(0.0d, 1.6d))
                 .withAxisTitle("Voltaje (mV)")
                 .build();
 
@@ -340,7 +375,7 @@ public class Demo1Activity extends AppCompatActivity {
             public void run() {
                 UpdateSuspender.using(surface, appendDataRunnable);
             }
-        }, 0, TIME_INTERVAL, TimeUnit.MILLISECONDS);
+        }, 2000, TIME_INTERVAL, TimeUnit.MILLISECONDS);
 
         chartLayout.addView(surface);
     }
@@ -380,11 +415,16 @@ public class Demo1Activity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+
+            Log.e("acccion",action);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 //updateConnectionState(R.string.connected);
                 invalidateOptionsMenu();
                 Toast.makeText(context, "Se conecto", Toast.LENGTH_SHORT).show();
+
+                btnConectar.setBackgroundResource(R.drawable.buttongreen);
+                conexionECG=true;
                 getServices();
 
 
@@ -393,6 +433,16 @@ public class Demo1Activity extends AppCompatActivity {
                 ///updateConnectionState(R.string.disconnected);
                 Toast.makeText(context, "Se desconecto", Toast.LENGTH_SHORT).show();
                 invalidateOptionsMenu();
+                btnConectar.setBackgroundResource(R.drawable.buttongrey);
+                conexionECG=false;
+                try {
+                    if(schedule!=null){
+                        schedule.cancel(true);
+                    }
+                }catch (Exception e){
+
+                }
+
                 //clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
@@ -410,13 +460,24 @@ public class Demo1Activity extends AppCompatActivity {
 
 
                 //Log.e("data  Bluetooth",intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
-                if(dialogerror!=null){
-                    dialogerror.dismiss();
+                errorDetected="";
+                if(modalOn!=null){
+                    try {
+                        dialogerror.dismiss();
+                    }catch (Exception e){
+                        Log.e("error close m",e.toString());
+                    }
+
                 }
-                if(firstLoadEcg){
-                    reloadEcgChart();
-                }else {
-                    loadEcgChart();
+                if (!haveDataOk){
+
+                    if(firstLoadEcg){
+                        reloadEcgChart();
+                    }else {
+                        loadEcgChart();
+                    }
+                    haveDataOk=true;
+                    haveError=false;
                 }
 
                 //displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
@@ -431,17 +492,76 @@ public class Demo1Activity extends AppCompatActivity {
                 // error LOD : 6 LL - AL
                 // error LOD : 5 LL - AR
                 // error LOD : 3 AL - AR
-                String error =intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
 
-                // cancelo ECG graph
-                schedule.cancel(true);
-                openModalError(Demo1Activity.this,1);
+                if(schedule!=null){
+                    schedule.cancel(true);
+                }
+
+                try{
+
+                    String error =intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+                    Log.e("error LOF",error);
+                    // cancelo ECG graph
+
+
+                    Log.e("error detected",errorDetected);
+                    // detecto si cambio el error;
+                    if(!errorDetected.equalsIgnoreCase(error)){
+                        haveError=false; // asi lo fuerzo a que me muestre otro error
+                        if(dialogerror!=null){
+                            dialogerror.dismiss();
+                        }
+
+                        Log.e("CAMBIO ERROR 1","CAMBIO ERRROR");
+                        if(modalOn){
+                            Log.e("CAMBIO ERROR 2","CAMBIO ERRROR");
+                            cuerpo_bra_der.setVisibility(View.INVISIBLE);
+                            cuerpo_bra_izq.setVisibility(View.INVISIBLE);
+                            cuerpo_pier_izq.setVisibility(View.INVISIBLE);
+                            cuerpo.setVisibility(View.INVISIBLE);
+
+                            //dialogerror.dismiss();
+                        }
+                    }
+                    errorDetected=error;
+                    if(!haveError){
+
+
+                        // si viene un error distinto al ultimo vuelvo a cerrar al modaly abrir de neuvo con el otro error
+
+
+                        if(error.equalsIgnoreCase("01")){
+                            openModalError(Demo1Activity.this,1);
+                            cuerpo_bra_der.setVisibility(View.VISIBLE);
+                        }
+                        if(error.equalsIgnoreCase("02")){
+
+                            openModalError(Demo1Activity.this,2);
+                            cuerpo_bra_izq.setVisibility(View.VISIBLE);
+
+                        }
+                        if(error.equalsIgnoreCase("04")){
+
+                            openModalError(Demo1Activity.this,4);
+                            cuerpo_pier_izq.setVisibility(View.VISIBLE);
+                        }
+                        if(error.equalsIgnoreCase("07")){
+                            cuerpo.setVisibility(View.VISIBLE);
+                            openModalError(Demo1Activity.this,7);
+
+                        }
+
+                        haveError=true;
+                        haveDataOk=false;
+                    }
+
+                }catch (Exception e){
+                    Log.e("error",e.toString());
+                }
+
+
                 // muestro modal
-
             }
-
-
-
         }
 
 
@@ -486,6 +606,10 @@ public class Demo1Activity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BluetoothLeService.EXTRA_DATA_ECG);
+        intentFilter.addAction(BluetoothLeService.EXTRA_DATA_ECG_ERROR);
+
+
         return intentFilter;
     }
 
@@ -538,11 +662,16 @@ public class Demo1Activity extends AppCompatActivity {
 
             if (status == iHealthDevicesManager.DEVICE_STATE_CONNECTED) {
                 msg.what = HANDLER_CONNECTED;
-                Toast.makeText(Demo1Activity.this, "se conecto", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Demo1Activity.this, "Pulsioximentro conectado", Toast.LENGTH_SHORT).show();
+                btnOxi.setBackgroundResource(R.drawable.buttongreen);
+                conexionPulsi=true;
                 getPulsiData(mac);
 
             } else if (status == iHealthDevicesManager.DEVICE_STATE_DISCONNECTED) {
                 msg.what = HANDLER_DISCONNECT;
+                btnOxi.setBackgroundResource(R.drawable.buttongrey);
+                conexionPulsi=false;
+                Toast.makeText(Demo1Activity.this, "Se Desconoecto Pulsi", Toast.LENGTH_SHORT).show();
             }
             msg.setData(bundle);
             myHandler.sendMessage(msg);
@@ -563,6 +692,10 @@ public class Demo1Activity extends AppCompatActivity {
         public void onDeviceNotify(String mac, String deviceType, String action, String message) {
             Log.d(TAG, "mac:" + mac + "--type:" + deviceType + "--action:" + action + "--message:" + message);
             JSONTokener jsonTokener = new JSONTokener(message);
+            btnOxi.setText("Pulsi-Oximetro");
+            btnOxi.setEnabled(true);
+
+
             switch (action) {
                 case PoProfile.ACTION_OFFLINEDATA_PO:
                     try {
@@ -688,12 +821,14 @@ public class Demo1Activity extends AppCompatActivity {
             //dialog.dismiss();
             if(!scanResult){
 
+
                 //Toast.makeText(Demo1Activity.this, "Error : PulsiOximetro no encontrado", Toast.LENGTH_SHORT).show();
                 //finish();
             }else {
 
             }
-
+            btnOxi.setText("Pulsi-Oximetro");
+            btnOxi.setEnabled(true);
             //tv_discovery.setText("discover finish");
         }
 
@@ -701,12 +836,15 @@ public class Demo1Activity extends AppCompatActivity {
 
     private void getPulsiData(String mac){
         if (mPo3Control!=null){
+            mPo3Control.getBattery();
+
             mPo3Control.startMeasure();
         }else {
             mPo3Control = iHealthDevicesManager.getInstance().getPo3Control(mac);
             if (mPo3Control!=null){
                 Log.d(TAG, "pulsi meassure process ");
                 //Toast.makeText(RecollectorActivity.this, "tengo el control", Toast.LENGTH_SHORT).show();
+                mPo3Control.getBattery();
                 mPo3Control.startMeasure();
             }else {
                 Log.d(TAG, "errpr al conectar con pulsi");
@@ -848,48 +986,45 @@ public class Demo1Activity extends AppCompatActivity {
 
     private  void openModalError(Context cont,int image){
         dialogerror = new Dialog(cont);
+        modalOn=true;
 
         dialogerror.setContentView(R.layout.modal_error);
 
-        ImageView cuerpo=(ImageView)dialogerror.findViewById(R.id.cuerpo);
-        ImageView cuerpo_bra_der=(ImageView)dialogerror.findViewById(R.id.cuerpo_bra_der);
-        ImageView cuerpo_bra_izq=(ImageView)dialogerror.findViewById(R.id.cuerpo_bra_izq);
-        ImageView cuerpo_pier_der=(ImageView)dialogerror.findViewById(R.id.cuerpo_pier_der);
-        ImageView cuerpo_pier_izq=(ImageView)dialogerror.findViewById(R.id.cuerpo_pier_izq);
+        cuerpo=(ImageView)dialogerror.findViewById(R.id.cuerpo);
+        cuerpo_bra_der=(ImageView)dialogerror.findViewById(R.id.cuerpo_bra_der);
+        cuerpo_bra_izq=(ImageView)dialogerror.findViewById(R.id.cuerpo_bra_izq);
+        cuerpo_pier_der=(ImageView)dialogerror.findViewById(R.id.cuerpo_pier_der);
+        cuerpo_pier_izq=(ImageView)dialogerror.findViewById(R.id.cuerpo_pier_izq);
 
 
 
         Log.e("imagen",String.valueOf(image));
         if(image==1){
-            cuerpo.setVisibility(View.VISIBLE);
-        }
-
-        if(image==2){
+            //cuerpo.setVisibility(View.VISIBLE);
             cuerpo_bra_der.setVisibility(View.VISIBLE);
         }
-
-
-        if(image==3){
+        if(image==2){
             cuerpo_bra_izq.setVisibility(View.VISIBLE);
         }
-
-
-        if(image==4){
-            cuerpo_pier_der.setVisibility(View.VISIBLE);
+        if(image==3){
+            //cuerpo_bra_izq.setVisibility(View.VISIBLE);
         }
-
-
-        if(image==5){
+        if(image==4){
+            //cuerpo_pier_der.setVisibility(View.VISIBLE);
             cuerpo_pier_izq.setVisibility(View.VISIBLE);
         }
-
-
+        if(image==7){
+            cuerpo.setVisibility(View.VISIBLE);
+            //cuerpo_pier_der.setVisibility(View.VISIBLE);
+            //cuerpo_pier_izq.setVisibility(View.VISIBLE);
+        }
 
         dialogerror.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(final DialogInterface arg0) {
+                modalOn=false;
                 // do something
-                reloadEcgChart();
+                //reloadEcgChart();
             }
         });
 

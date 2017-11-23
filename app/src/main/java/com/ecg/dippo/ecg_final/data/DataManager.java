@@ -40,7 +40,7 @@ public class DataManager {
     private static final DataManager INSTANCE = new DataManager();
 
     private static final String TRADETICKS_DATA_PATH = "data/TradeTicks.csv";
-    private static final String WAVEFORM_DATA_PATH = "data/waveform.txt";
+    private static final String WAVEFORM_DATA_PATH = "data/waveform2.txt";
     private static final String PRICE_INDU_DAILY_DATA_PATH = "data/INDU_Daily.csv";
     private static final String PRICE_EURUSD_DAILY_DATA_PATH = "data/EURUSD_Daily.csv";
 

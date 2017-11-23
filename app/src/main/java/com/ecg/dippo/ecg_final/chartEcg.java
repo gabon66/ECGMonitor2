@@ -137,10 +137,11 @@ public class chartEcg extends AppCompatActivity {
                 .withVisibleRange(new DoubleRange(0d, 10d))
                 .withAutoRangeMode(AutoRange.Never)
                 .withAxisTitle("Time (seconds)")
+                .withVisibility(1)
                 .build();
 
         final IAxis yRightAxis = sciChartBuilder.newNumericAxis()
-                .withVisibleRange(new DoubleRange(-0.5d, 1.5d))
+                .withVisibleRange(new DoubleRange(0.0d, 1.6d))
                 .withAxisTitle("Voltage (mV)")
                 .build();
 
